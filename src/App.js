@@ -7,7 +7,8 @@ class App extends Component {
     animalsByLocation: [],
     totalNumberOfAnimals: '',
     animalsToCount: [],
-    lionTigerBear: ''
+    lionTigerBear: '',
+    targetAnimals: []
   }
 
   addLocationToState = event => {
@@ -18,7 +19,7 @@ class App extends Component {
 
   findByLocation = () => {
     axios
-      .get(`https://localhost:5001/api/Animals/location=${this.state.location}`)
+      .get(`https://localhost:5001/api/Animals/location/${this.state.location}`)
       .then(resp => {
         this.setState({
           animalsByLocation: resp.data
@@ -27,17 +28,20 @@ class App extends Component {
   }
 
   deleteByLocation = () => {
-    for (let i = 0; i < this.state.animals.length; i++) {
-      if (
-        this.state.animals[i].locationOfLastSeen === `${this.state.location}`
-      ) {
-        axios.delete(
-          `https://localhost:5001/api/Animals/${this.state.animals[i].id}`
-        )
-      }
-    }
-    this.componentDidMount()
+    axios
+      .delete(
+        `https://localhost:5001/api/Animals/location/${this.state.location}`
+      )
+      .then(resp => {
+        // this.setState({
+        //   animals: this.state.animals.filter(
+        //     animal => animal.locationOfLastSeen !== this.state.location
+        //   )
+        // })
+        this.getAllAnimals()
+      })
   }
+
   countAnimals = () => {
     let count = 0
     let ligerbearCount = 0
@@ -50,9 +54,12 @@ class App extends Component {
 
     for (i = 0; i < this.state.animals.length; i++) {
       if (
-        this.state.animals[i].species === 'Lion' ||
-        this.state.animals[i].species === 'Tiger' ||
-        this.state.animals[i].species === 'Bear'
+        this.state.targetAnimals.includes(
+          this.state.animals[i].species.toLowerCase()
+        )
+        // this.state.animals[i].species === 'Lion' ||
+        // this.state.animals[i].species === 'Tiger' ||
+        // this.state.animals[i].species === 'Bear'
       )
         ligerbearCount += this.state.animals[i].countOfTimesSeen
     }
@@ -61,12 +68,30 @@ class App extends Component {
     })
   }
 
-  componentDidMount() {
+  getAllAnimals = () => {
     axios.get('https://localhost:5001/api/Animals').then(resp => {
       this.setState({
         animals: resp.data
       })
     })
+  }
+
+  updateAnimalCount = e => {
+    this.setState({
+      animalToAdd: e.target.value
+    })
+  }
+
+  addToAnimalCountList = () => {
+    this.setState({
+      targetAnimals: this.state.targetAnimals.concat(
+        this.state.animalToAdd.toLowerCase()
+      )
+    })
+  }
+
+  componentDidMount() {
+    this.getAllAnimals()
   }
   render() {
     return (
@@ -103,6 +128,12 @@ class App extends Component {
           <button onClick={this.deleteByLocation}>Delete from database</button>
           <button onClick={this.countAnimals}>Count the animals</button>
         </span>
+        <input
+          type="text"
+          placeholder="animals to count"
+          onChange={this.updateAnimalCount}
+        />
+        <button onClick={this.addToAnimalCountList}>Add to count list</button>
         <ul>
           <p>Enter a biome above to sort the animals into a list here!</p>
           {this.state.animalsByLocation.map(animal => {
