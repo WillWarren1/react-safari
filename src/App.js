@@ -5,14 +5,9 @@ class App extends Component {
     animals: [],
     location: '',
     animalsByLocation: [],
-    totalNumberOfAnimals: ''
-  }
-  componentDidMount() {
-    axios.get('https://localhost:5001/api/Animals').then(resp => {
-      this.setState({
-        animals: resp.data
-      })
-    })
+    totalNumberOfAnimals: '',
+    animalsToCount: [],
+    lionTigerBear: ''
   }
 
   addLocationToState = event => {
@@ -44,15 +39,35 @@ class App extends Component {
     this.componentDidMount()
   }
   countAnimals = () => {
-    var count = 0
+    let count = 0
+    let ligerbearCount = 0
     for (var i = 0; i < this.state.animals.length; i++) {
       count += this.state.animals[i].countOfTimesSeen
     }
     this.setState({
       totalNumberOfAnimals: count
     })
+
+    for (i = 0; i < this.state.animals.length; i++) {
+      if (
+        this.state.animals[i].species === 'Lion' ||
+        this.state.animals[i].species === 'Tiger' ||
+        this.state.animals[i].species === 'Bear'
+      )
+        ligerbearCount += this.state.animals[i].countOfTimesSeen
+    }
+    this.setState({
+      lionTigerBear: ligerbearCount
+    })
   }
 
+  componentDidMount() {
+    axios.get('https://localhost:5001/api/Animals').then(resp => {
+      this.setState({
+        animals: resp.data
+      })
+    })
+  }
   render() {
     return (
       <>
@@ -63,8 +78,10 @@ class App extends Component {
           delete information about these animals!
         </p>
         <ul>
-          Here are all the animals! I've seen {this.state.totalNumberOfAnimals}{' '}
-          animals!
+          <p>
+            I've seen {this.state.totalNumberOfAnimals} animals! Here are all
+            the animals!
+          </p>
           {this.state.animals.map(animal => {
             return (
               <li key={animal.id}>
@@ -74,6 +91,7 @@ class App extends Component {
             )
           })}
         </ul>
+        <p>I've seen {this.state.lionTigerBear} lions, tiger, and bears!</p>
         <span>
           <input
             type="text"
@@ -86,6 +104,7 @@ class App extends Component {
           <button onClick={this.countAnimals}>Count the animals</button>
         </span>
         <ul>
+          <p>Enter a biome above to sort the animals into a list here!</p>
           {this.state.animalsByLocation.map(animal => {
             return <li key={animal.id}>{animal.species}</li>
           })}
