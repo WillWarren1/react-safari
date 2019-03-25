@@ -4,7 +4,8 @@ class App extends Component {
   state = {
     animals: [],
     location: '',
-    animalsByLocation: []
+    animalsByLocation: [],
+    totalNumberOfAnimals: ''
   }
   componentDidMount() {
     axios.get('https://localhost:5001/api/Animals').then(resp => {
@@ -42,6 +43,15 @@ class App extends Component {
     }
     this.componentDidMount()
   }
+  countAnimals = () => {
+    var count = 0
+    for (var i = 0; i < this.state.animals.length; i++) {
+      count += this.state.animals[i].countOfTimesSeen
+    }
+    this.setState({
+      totalNumberOfAnimals: count
+    })
+  }
 
   render() {
     return (
@@ -53,7 +63,8 @@ class App extends Component {
           delete information about these animals!
         </p>
         <ul>
-          Here are all the animals!
+          Here are all the animals! I've seen {this.state.totalNumberOfAnimals}{' '}
+          animals!
           {this.state.animals.map(animal => {
             return (
               <li key={animal.id}>
@@ -72,6 +83,7 @@ class App extends Component {
           />
           <button onClick={this.findByLocation}>Enter</button>
           <button onClick={this.deleteByLocation}>Delete from database</button>
+          <button onClick={this.countAnimals}>Count the animals</button>
         </span>
         <ul>
           {this.state.animalsByLocation.map(animal => {
