@@ -30,7 +30,18 @@ class App extends Component {
       })
   }
 
-  deleteByLocation = () => {}
+  deleteByLocation = () => {
+    for (let i = 0; i < this.state.animals.length; i++) {
+      if (
+        this.state.animals[i].locationOfLastSeen === `${this.state.location}`
+      ) {
+        axios.delete(
+          `https://localhost:5001/api/Animals/${this.state.animals[i].id}`
+        )
+      }
+    }
+    this.componentDidMount()
+  }
 
   render() {
     return (
